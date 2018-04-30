@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-kube
+spec:
+  selector:
+    app: hello
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 80
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: hello
+  labels:
+    app: hello
+spec:
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+      - name: hello
+        image: macintoshprime/hello-kubernetes:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+---
+apiVersion:  autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hello
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta2
+    kind: Deployment
+    name: hello
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 40
