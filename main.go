@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -12,10 +15,20 @@ func home(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
+// Health Check Endpoint for K8s
+func healthCheck(w http.ResponseWriter, r *http.Request) {
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "healthy")
+}
+
 func main() {
 
-	http.HandleFunc("/", home)
+	r := mux.NewRouter()
 
-	http.ListenAndServe(":80", nil)
+	r.HandleFunc("/", home)
+	r.HandleFunc("/healthz", healthCheck)
 
+	fmt.Println("Listening port 8081")
+	http.ListenAndServe(":8080", r)
 }
