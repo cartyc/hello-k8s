@@ -22,13 +22,22 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "healthy")
 }
 
+func metrics(w http.ResponseWriter, r *http.Request) {
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "healthy")
+}
+
 func main() {
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", home)
 	r.HandleFunc("/healthz", healthCheck)
+	r.HandleFunc("/metrics", healthCheck)
 
-	fmt.Println("Listening port 8081")
-	http.ListenAndServe(":8080", r)
+	port := ":8080"
+
+	fmt.Println("Listening on port", port)
+	http.ListenAndServe(port, r)
 }

@@ -5,7 +5,9 @@ WORKDIR /go/src/hello-kubernetes
 COPY . .
 
 # Go dep!
-RUN go build -o hello-kubernetes
+RUN apk update; apk add git && \
+    go get -u github.com/golang/dep/... && \  
+    go build -o hello-kubernetes
 
 # # Prod
 FROM alpine
