@@ -11,3 +11,4 @@ steps:
       from_secret: DOCKER_PASS
     repo: macintoshprime/hello-kubernetes
     tags: latest
+    dockerfile: build/Dockerfile
