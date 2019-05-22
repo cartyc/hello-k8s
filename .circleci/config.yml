@@ -26,17 +26,15 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-    environment:
-      steps:
-        - setup_remote_docker
-        - run:
-            name: Load archived Docker image
-            command: docker load -i /tmp/workspace/image.tar
-        - run:
-            name: publish docker image to docker hub
-            command: |
-              echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                docker push $IMAGE_NAME:latest
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: publish docker image to docker hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+              docker push $IMAGE_NAME:latest
 workflows:
   version: 2
   build-master:
