@@ -1,0 +1,13 @@
+kind: pipeline
+name: default
+
+steps:
+- name: docker  
+  image: plugins/docker
+  settings:
+    username: 
+      from_secret: DOCKER_USER
+    password:
+      from_secret: DOCKER_PASS
+    repo: macintoshprime/hello-kubernetes
+    tags: latest
