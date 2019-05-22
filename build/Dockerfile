@@ -1,11 +1,20 @@
-FROM golang:1.9-alpine
+FROM golang:1.12 as build
+
+ENV GO111MODULE=on
 
 WORKDIR /go/src/hello-kubernetes
 
 COPY . .
 
-RUN go install -v ./...
+RUN go get -u -v ./... && \
+    go install -v ./...
 
-CMD ["hello-kubernetes"]
+# Get binary for runtime
+FROM gcr.io/distroless/base
+
+COPY --from=build /go/bin/hello-kubernetes ./
+COPY ./templates ./templates
+
+CMD ["./hello-kubernetes"]
 
 EXPOSE 80
