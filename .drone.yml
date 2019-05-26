@@ -1,7 +1,15 @@
 kind: pipeline
 name: default
 
+
 steps:
+
+- name: testing
+  image: golang
+  commands:
+  - go build
+  - go test
+
 - name: docker  
   image: plugins/docker
   settings:
