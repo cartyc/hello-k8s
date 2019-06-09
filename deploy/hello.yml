@@ -21,10 +21,10 @@ metadata:
 spec:
   selector:
     app: hello
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - protocol: TCP
-    port: 80
+    port: 8080
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
@@ -43,15 +43,128 @@ spec:
     spec:
       containers:
       - name: hello
-        image: macintoshprime/hello-kubernetes:v8
+        image: macintoshprime/hello-kubernetes:latest
+        imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         resources:
           requests:
             cpu: "100m"
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 80
+            port: 8080
           initialDelaySeconds: 10
           periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+spec:
+  selector:
+    app: hello-prometheus
+  ports:
+  - port: 9090
+    targetPort: 9090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-deployment
+spec:
+  selector:
+    matchLabels:
+      app: hello-prometheus
+  template:
+    metadata:
+      labels:
+        app: hello-prometheus
+    spec:
+      serviceAccount: prometheus
+      containers:
+      - name: myapp
+        image: prom/prometheus:v2.1.0
+        args:
+        - --config.file=/etc/prometheus/prometheus.yml
+        - --web.listen-address=:9090
+        - --web.enable-lifecycle
+        - --storage.tsdb.path=/prometheus
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/prometheus
+      volumes:
+        - name: config-volume
+          configMap:
+            name: prometheus-config
+      securityContext:
+        runAsUser: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  selector:
+    app: grafana
+  ports:
+  - port: 3000
+    targetPort: 3000
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana-core
+  labels:
+    app: grafana
+    component: core
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+        component: core
+    spec:
+      containers:
+      - image: grafana/grafana:4.2.0
+        name: grafana-core
+        imagePullPolicy: IfNotPresent
+        # env:
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+          # The following env variables set up basic auth twith the default admin user and admin password.
+          - name: GF_AUTH_BASIC_ENABLED
+            value: "true"
+          - name: GF_SECURITY_ADMIN_USER
+            value: admin
+          - name: GF_SECURITY_ADMIN_PASSWORD
+            value: abc123
+          - name: GF_AUTH_ANONYMOUS_ENABLED
+            value: "false"
+          # - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+          #   value: Admin
+          # does not really work, because of template variables in exported dashboards:
+          # - name: GF_DASHBOARDS_JSON_ENABLED
+          #   value: "true"
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: 3000
+          # initialDelaySeconds: 30
+          # timeoutSeconds: 1
+        volumeMounts:
+        - name: grafana-persistent-storage
+          mountPath: /var/lib/grafana
+      volumes:
+      - name: grafana-persistent-storage
+        emptyDir: {}

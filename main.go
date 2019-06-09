@@ -34,7 +34,7 @@ func main() {
 
 	r.HandleFunc("/", home)
 	r.HandleFunc("/healthz", healthCheck)
-	r.HandleFunc("/metrics", healthCheck)
+	// r.Handle("/metrics", promhttp.Handler())
 
 	port := ":8080"
 

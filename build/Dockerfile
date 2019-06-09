@@ -12,7 +12,7 @@ RUN go get -u -v ./... && \
 # Get binary for runtime
 FROM gcr.io/distroless/base
 
-COPY --from=build /go/bin/hello-kubernetes ./
+COPY --from=build /go/bin/hello-kubernetes .
 COPY ./templates ./templates
 
 CMD ["./hello-kubernetes"]
