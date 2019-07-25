@@ -34,7 +34,7 @@ jobs:
           name: publish docker image to docker hub
           command: |
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-              docker push $IMAGE_NAME:latest
+              docker push $IMAGE_NAME:$CIRCLE_SHA1
 workflows:
   version: 2
   build-master:
