@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +35,7 @@ func main() {
 
 	r.HandleFunc("/", home)
 	r.HandleFunc("/healthz", healthCheck)
-	// r.Handle("/metrics", promhttp.Handler())
+	r.Handle("/metrics", promhttp.Handler())
 
 	port := ":8080"
 

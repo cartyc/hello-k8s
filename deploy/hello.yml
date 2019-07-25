@@ -43,7 +43,7 @@ spec:
     spec:
       containers:
       - name: hello
-        image: macintoshprime/hello-kubernetes:latest
+        image: macintoshprime/hello-kubernetes:v9
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
