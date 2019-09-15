@@ -46,9 +46,6 @@ spec:
         image: macintoshprime/hello-kubernetes:v8
         ports:
         - containerPort: 80
-        resources:
-          requests:
-            cpu: "100m"
         livenessProbe:
           httpGet:
             path: /healthz

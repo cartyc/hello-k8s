@@ -1,45 +1,34 @@
-package containerresources
+package main
 
-missing(obj, field) = true {
-    not obj[field]
+
+empty(value) {
+  count(value) == 0
 }
 
-missing(obj, field) = true {
-    obj[field] == ""
+no_violations {
+  empty(deny)
 }
 
-deny[{"msg": msg}] {
-    container := input.review.object.spec.template.spec.containers[_]
-    not container.resources
-    msg := sprintf("container <%v> has no resources", [container.name])
+# no_warnings {
+#   empty(warn)
+# }
+
+
+
+test_deployment_without_security_context {
+  deny["Containers must not run as root in Deployment sample"] with input as {"kind": "Deployment", "metadata": { "name": "sample" }}
 }
 
-deny[{"msg": msg}] {
-    container := input.review.object.spec.template.spec.containers[_]
-    not container.resources.requests
-    msg := sprintf("container <%v> has no resource requests", [container.name])
+test_deployment_with_security_context {
+  no_violations with input as {"kind": "Deployment", "spec": {
+    "selector": { "matchLabels": { "app": "something", "release": "something" }},
+    "template": { "spec": { "securityContext": { "runAsNonRoot": true  }}}}}
 }
 
-deny[{"msg": msg}] {
-    container := input.review.object.spec.template.spec.containers[_]
-    missing(container.resources.requests, "cpu")
-    msg := sprintf("container <%v> has no cpu requests", [container.name])
+test_services_not_denied {
+  no_violations with input as {"kind": "Service", "metadata": { "name": "sample" }}
 }
 
-deny[{"msg": msg}] {
-    container := input.review.object.spec.template.spec.containers[_]
-    missing(container.resources.requests, "memory")
-    msg := sprintf("container <%v> has no memory requests", [container.name])
-}
-
-deny[{"msg": msg}] {
-    container := input.review.object.spec.template.spec.containers[_]
-    not container.resources.limits
-    msg := sprintf("container <%v> has no resource limits", [container.name])
-}
-
-deny[{"msg": msg}] {
-    container := input.review.object.spec.template.spec.containers[_]
-    missing(container.resources.limits, "memory")
-    msg := sprintf("container <%v> has no memory limits", [container.name])
-}
+# test_services_issue_warning {
+#   warn["Found service sample but services are not allowed"] with input as {"kind": "Service", "metadata": { "name": "sample" }}
+# }
