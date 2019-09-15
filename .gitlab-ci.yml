@@ -7,8 +7,10 @@ validate:
   stage: validate
   image:
     name: garethr/kubeval
+    entrypoint:
+      - ""
   script:
-    - kubeval --strict deployments/*
+    - kubeval --strict deploy/*
 
 conformance:
   stage: conformance
@@ -17,7 +19,7 @@ conformance:
     entrypoint:
       - ""
   script:
-    - conftest test "deployments/*"
+    - conftest test deploy/*
 
 build:
   stage: build
