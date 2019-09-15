@@ -19,7 +19,7 @@ conformance:
     entrypoint:
       - ""
   script:
-    - conftest test "deploy/*"
+    - conftest test deploy/*
 
 build:
   stage: build
