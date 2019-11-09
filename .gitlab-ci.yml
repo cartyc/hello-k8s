@@ -3,24 +3,6 @@ stages:
   - conformance
   - build
 
-validate:
-  stage: validate
-  image:
-    name: garethr/kubeval
-    entrypoint:
-      - ""
-  script:
-    - kubeval --strict deploy/*
-
-conformance:
-  stage: conformance
-  image:
-    name: instrumenta/conftest:latest
-    entrypoint:
-      - ""
-  script:
-    - conftest test deploy/*
-
 build:
   stage: build
   image:
