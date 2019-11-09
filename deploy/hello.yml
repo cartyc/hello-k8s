@@ -46,10 +46,14 @@ spec:
         image: macintoshprime/hello-kubernetes:v9
         imagePullPolicy: Always
         ports:
+<<<<<<< HEAD
         - containerPort: 8080
         resources:
           requests:
             cpu: "100m"
+=======
+        - containerPort: 80
+>>>>>>> 5a184aa8c25cd21a16a4ebc788038219bac99698
         livenessProbe:
           httpGet:
             path: /healthz
